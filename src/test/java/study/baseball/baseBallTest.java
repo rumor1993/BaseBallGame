@@ -4,7 +4,10 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -27,14 +30,14 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  */
 
 // NumberGenerator
-    // [] 1부터 9까지의 수를 만든다 다
-    // [] 1~9 자리를 3자리를 만든다
-    // [] 3자리는 모두 서로 달라야한다.
+    // [O] 1부터 9까지의 수를 만든다 다
+    // [O] 1~9 자리를 3자리를 만든다
+    // [O] 3자리는 모두 서로 달라야한다.
 
 // Referee
-    // [] 같은 수가 같은 자리에 있으면 스트라이크를 처리해준다.
-    // [] 같은 수가 다른 자리에 있으면 볼로 처리해준다
-    // [] 같은 수가 전혀 없으면 낫싱으로 처리해준다.
+    // [O] 같은 수가 같은 자리에 있으면 스트라이크를 처리해준다.
+    // [O] 같은 수가 다른 자리에 있으면 볼로 처리해준다
+    // [O] 같은 수가 전혀 없으면 낫싱으로 처리해준다.
 
 public class baseBallTest {
 
@@ -47,20 +50,52 @@ public class baseBallTest {
     }
 
     @Test
-    @DisplayName("3자리 수를 만든다.")
+    @DisplayName("중복이 없는 3자리 수를 만든다.")
     void case2() {
         NumberGenerator generator = new NumberGenerator();
         List numbers = generator.createNumber3();
         assertThat(numbers.size()).isEqualTo(3);
+
+        assertThat(numbers.size() == numbers.stream().distinct().count()).isTrue();
+
+        numbers = Arrays.asList(1, 2, 2);
+        assertThat(numbers.size() == numbers.stream().distinct().count()).isFalse();
     }
 
     @Test
-    @DisplayName("3자리가 서로 다른 숫자를 가지는지 확인한다.")
+    @DisplayName("같은 수가 같은 자리에 있으면 스트라이크 처리해준다")
     void case3() {
-        NumberGenerator generator = new NumberGenerator();
-        List numbers = generator.createNumber3();
+        List<Integer> computer = Arrays.asList(1, 2, 3);
+        Referee referee = new Referee();
+        BallType ballType = referee.compareBall(computer, new Ball(1 - 1, 1));
+        assertThat(ballType).isEqualTo(BallType.STRIKE);
     }
 
+    @Test
+    @DisplayName("같은 수가 다른 자리에 있으면 볼로 처리해준다")
+    void case4() {
+        List<Integer> computer = Arrays.asList(1, 2, 3);
+        Referee referee = new Referee();
+        BallType ballType = referee.compareBall(computer, new Ball(2 - 1, 1));
+        assertThat(ballType).isEqualTo(BallType.BALL);
+    }
 
+    @Test
+    @DisplayName("같은 수가 전혀 없으면 낫싱으로 처리해준다.")
+    void case5() {
+        List<Integer> computer = Arrays.asList(1, 2, 3);
+        Referee referee = new Referee();
+        BallType ballType = referee.compareBall(computer, new Ball(2 - 1, 4));
+        assertThat(ballType).isEqualTo(BallType.NOTHING);
+    }
 
+    @Test
+    @DisplayName("상대방(컴퓨터)의 수가 425일 때, 123을 제시한 경우 : 1스트라이크")
+    void case6() {
+        List<Integer> computer = Arrays.asList(1, 2, 3);
+        List<Integer> player = Arrays.asList(1, 2, 3);
+        Referee referee = new Referee();
+        String result = referee.play(computer, player);
+        assertThat(result).isEqualTo("3 스트라이크 0 볼 0 낫싱");
+    }
 }

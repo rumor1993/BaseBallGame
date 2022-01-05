@@ -11,9 +11,13 @@ public class NumberGenerator {
     }
 
     public List createNumber3() {
-        ArrayList numbers = new ArrayList();
-        for (int i = 0; i < 3; i++) {
-            numbers.add(createNumber());
+        List numbers = new ArrayList();
+        NumberGenerator generator = new NumberGenerator();
+        while (numbers.size() < 3) {
+            int number = generator.createNumber();
+            if (!numbers.contains(number)) {
+                numbers.add(number);
+            }
         }
         return numbers;
     }
